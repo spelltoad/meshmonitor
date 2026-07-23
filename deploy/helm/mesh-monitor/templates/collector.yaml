@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector-deployment
+  labels: 
+    app: collector
+spec:
+  replicas: {{ .Values.collector.replicaCount }}
+  selector:
+    matchLabels:
+      app: collector
+  template:
+    metadata:
+      labels:
+        app: collector
+    spec:
+      containers:
+        - name: collector
+          image: {{ .Values.collector.image }}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: DB_USER
+              value: {{ .Values.postgres.user }}
+            - name: DB_PASSWORD
+              value: {{ .Values.postgres.password }}
+            - name: DB_NAME
+              value: {{ .Values.postgres.database }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collector-service
+spec:
+  selector:
+    app: collector
+  ports:
+    - protocol: TCP
+      port: {{ .Values.collector.service.port }}
+      targetPort: {{ .Values.collector.service.targetPort }}
+      nodePort: {{ .Values.collector.service.nodePort }}
+  type: {{ .Values.collector.service.type }}

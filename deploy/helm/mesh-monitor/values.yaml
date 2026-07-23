@@ -1,0 +1,15 @@
+postgres:
+  image: postgres
+  user: postgres
+  password: arode
+  database: mesh-monitor
+  port: 5432
+
+collector:
+  image: collector
+  replicaCount: 1
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 8080
+    nodePort: 30080
