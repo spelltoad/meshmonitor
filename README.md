@@ -106,6 +106,8 @@ python3 scripts/agent.py
 1. **Global Health**: Задержка до роутеров и Интернета и матрица доступности для обнаружения аварий
 2. **Infrastructure**: Статус портов кластера, скорость DNS и доступность HTTP интерфейсов роутеров
 
+<img width="1537" height="708" alt="image" src="https://github.com/user-attachments/assets/48bbc5df-cc22-4483-92fe-621cb8c9c471" />
+
 ## STAR
 
 WIP
