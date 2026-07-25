@@ -1,8 +1,6 @@
 # meshmonitor
 
-> Распределенная система мониторинга сетевой связности локальной сети
-
----
+Система мониторинга сетевой связности локальной сети
 
 ## Описание
 
@@ -14,7 +12,6 @@
 
 ```mermaid
 flowchart TD
-    %% Subgraph 1: Monitored Infrastructure
     subgraph Target_Infra ["Инфраструктура"]
         style Target_Infra fill:#f9f9f9,stroke:#666,stroke-width:1px
         Router1["Router 1<br/><b>L3:</b> ICMP Ping | <b>L7:</b> Web UI"]
@@ -22,7 +19,6 @@ flowchart TD
         External_DNS["External<br/><b>L3:</b> 8.8.8.8 | <b>L7:</b> DNS mos.ru"]
     end
 
-    %% Subgraph 2: Distributed Agents
     subgraph Probes ["Python-зонды"]
         style Probes fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
         Agent_Win["Agent"]
@@ -30,7 +26,6 @@ flowchart TD
         Agent_Linux["Linux Node Agent"]
     end
 
-    %% Subgraph 3: Central k3s Cluster
     subgraph Cluster ["k3s Cluster"]
         style Cluster fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
 
@@ -49,13 +44,11 @@ flowchart TD
         end
     end
 
-    %% Subgraph 4: IaC Automation
     subgraph Automation ["IaC"]
         style Automation fill:#fff3e0,stroke:#f57c00,stroke-width:1px
         Ansible["Ansible Control Node"]
     end
 
-    %% Network Connections & Flows
     Probes -->|L3 / L4 / L7 checks| Target_Infra
     
     Probes -->|HTTP POST JSON<br/>/api/v1/telemetry| Nginx_Ingress
@@ -80,16 +73,20 @@ flowchart TD
 
 ### Стек
 
-* **Backend Core**: Сборщик метрик на Go
+* **Backend**: Сборщик метрик на Go
 * **Containerization**: Multi-stage `Dockerfile` на базе `alpine`
-* **Orchestration & Packaging**: Кластер **k3s**. Все компоненты системы (Go API, PostgreSQL, Prometheus, Grafana) упакованы в Helm-чарт
-* **Observability**: Интеграция `prometheus/client_golang`. Специализированный дашборд Grafana (State Timeline, Bar Gauges, Row Isolation)
+* **Orchestration**: Кластер k3s. Все компоненты системы упакованы в Helm-чарт
+* **Observability**: `prometheus/client_golang`. Grafana (State Timeline, Bar Gauges, Row Isolation)
 * **Synthetic Probe Agent**: Python скрипт на стандартной библиотеке (`socket`, `urllib`, `subprocess`) 
-* **Infrastructure as Code (IaC)**: Ansible
+* **IaC**: Ansible
 
 ## Быстрый старт
 
-### 1. Центральный контур в k3s
+### Prerequisites
+
+k3s (minikube/kind), helm, docker, python3
+
+### 1. Кластер k3s
 
 ```bash
 docker build -t collector:latest -f deploy/docker/Dockerfile .
@@ -105,7 +102,9 @@ python3 scripts/agent.py
 
 ## Дашборд Grafana
 
-WIP
+Дашборд структурирован по секциям:
+1. **Global Health**: Задержка до роутеров и Интернета и матрица доступности для обнаружения аварий
+2. **Infrastructure**: Статус портов кластера, скорость DNS и доступность HTTP интерфейсов роутеров
 
 ## STAR
 
